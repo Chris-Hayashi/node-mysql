@@ -18,6 +18,9 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
     if (err) throw err;
 });
+
+
+var done = false;
 function displayAll() {
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
@@ -39,6 +42,7 @@ function displayAll() {
 }
 
 function askQuestions() {
+
     inquirer.prompt({
         type: "input",
         name: "id",
@@ -71,13 +75,13 @@ function askQuestions() {
                     connection.query("UPDATE products SET stock_quantity = ?, product_sales = product_sales + ? WHERE item_id = ?", [res1[0].stock_quantity - answer2.quantity, res1[0].price * answer2.quantity, answer1.id], function(err, res2) {
                         if (err) throw err;
     
-                        console.log("You spent $" + res1[0].price * answer2.quantity);
-                        process.exit();
+                        console.log("\nYou successfully purchased " + answer2.quantity + " " + res1[0].product_name + "(s) for $" + res1[0].price * answer2.quantity);
+                        displayAll();
                     });
                 }
-            })
+            });
         });
-        })
+    });
 }
 
 displayAll();
