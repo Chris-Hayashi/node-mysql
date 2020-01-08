@@ -16,17 +16,14 @@ connection.connect(function(err) {
     if (err) throw err;
 });
 
-var table = new Table({
-    head: ["Department ID", "Department Name", "Overhead Costs", "Product Sales", "Total Profit"]
-});
-
 inquirer.prompt({
     type: "list",
     name: "options",
     message: "What would you like to do?",
     choices: [
         "View Product Sales by Department",
-        "Create New Department"
+        "Create New Department",
+        "Quit"
     ]
 }).then(function(answers) {
     switch (answers.options) {
@@ -36,11 +33,19 @@ inquirer.prompt({
         case "Create New Department":
             createDepartment();
             break;
+        case "Quit":
+            console.log("Goodbye!");
+            process.exit();
+            break;
     }
 });
 
 
 function viewSales() {
+
+    var table = new Table({
+        head: ["Department ID", "Department Name", "Overhead Costs", "Product Sales", "Total Profit"]
+    });
 
     connection.query("SELECT * FROM departments", function(err, res1) {
         if (err) throw err;
@@ -59,8 +64,10 @@ function viewSales() {
                     [obj.department_id, obj.department_name, obj.over_head_costs, sales, sales - obj.over_head_costs]
                 );
 
-                if (obj.department_name == res1[res1.length - 1].department_name)
+                if (obj.department_name == res1[res1.length - 1].department_name) {
                     console.log(table.toString());
+                    process.exit();
+                }
             });
         });
     });
@@ -68,4 +75,36 @@ function viewSales() {
 
 function createDepartment() {
 
+    var table = new Table({
+        head: ["Department ID", "Department Name", "Overhead Costs"]
+    });
+
+    inquirer.prompt([{
+        type: "input",
+        name: "department_name",
+        message: "What is the name of the department?"
+    }, {
+        type: "input",
+        name: "over_head_cost",
+        message: "What is the overhead cost of the department?"
+    }]).then(function(answers) {
+
+        var query = "INSERT INTO departments (department_name, over_head_costs) VALUES (?, ?)";
+        connection.query(query, [answers.department_name, answers.over_head_cost], function(err, res) {
+            if (err) throw err;
+        });
+
+        connection.query("SELECT * FROM departments", function(err, res) {
+            if (err) throw err;
+            res.forEach(function (obj) {
+                table.push(
+                    [obj.department_id, obj.department_name, obj.over_head_costs]
+                );
+            });
+
+            console.log(table.toString());
+
+            process.exit();
+        });
+    });
 }
