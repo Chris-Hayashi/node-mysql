@@ -39,32 +39,45 @@ function displayAll() {
 }
 
 function askQuestions() {
-    inquirer.prompt([{
+    inquirer.prompt({
         type: "input",
         name: "id",
         message: "What is the ID of the item you would like to purchase? [Quit with Q]"
-    }, {
-        type: "input",
-        name: "quantity",
-        message: "How many would you like? [Quit with Q]"
-    }]).then(function(answers) {
-        connection.query("SELECT * FROM products where item_id = ?", answers.id, function(err, res1) {
-            if (err) throw err;
+    }).then(function(answer1) {
 
-            if (answers.quantity > res1[0].stock_quantity) {
-                console.log("Insufficient quantity!");
+        if (answer1.id === "q" || answer1.id === "Q") {
+            console.log("Goodbye!");
+            process.exit();
+        }
+
+        inquirer.prompt({
+            type: "input",
+            name: "quantity",
+            message: "How many would you like? [Quit with Q]"
+        }).then(function(answer2) {
+
+            if (answer2.quantity === "q" || answer2.quantity === "Q") {
+                console.log("Goodbye!");
                 process.exit();
-            } 
-            else {
-                connection.query("UPDATE products SET stock_quantity = ?, product_sales = product_sales + ? WHERE item_id = ?", [res1[0].stock_quantity - answers.quantity, res1[0].price * answers.quantity, answers.id], function(err, res2) {
-                    if (err) throw err;
-
-                    console.log("You spent $" + res1[0].price * answers.quantity);
-                    process.exit();
-                });
             }
+            connection.query("SELECT * FROM products where item_id = ?", answer1.id, function(err, res1) {
+                if (err) throw err;
+    
+                if (answer2.quantity > res1[0].stock_quantity) {
+                    console.log("Insufficient quantity!");
+                    process.exit();
+                } 
+                else {
+                    connection.query("UPDATE products SET stock_quantity = ?, product_sales = product_sales + ? WHERE item_id = ?", [res1[0].stock_quantity - answer2.quantity, res1[0].price * answer2.quantity, answer1.id], function(err, res2) {
+                        if (err) throw err;
+    
+                        console.log("You spent $" + res1[0].price * answer2.quantity);
+                        process.exit();
+                    });
+                }
+            })
+        });
         })
-    });
 }
 
 displayAll();
