@@ -62,6 +62,8 @@ function viewProducts() {
         }
 
         console.log(table.toString());
+        
+        process.exit();
     });
 }
 
@@ -77,6 +79,8 @@ function viewInventory() {
         }
 
         console.log(table.toString());
+
+        process.exit();
     });
 }
 
@@ -101,8 +105,10 @@ function addInventory() {
             connection.query(query, [answers.quantity, answers.product], function(err, res) {
                 if (err) throw err;
                 console.log("Inventory succesfully updated...");
+
+                process.exit();
             });
-        })
+        });
     });
 }
 
@@ -130,6 +136,8 @@ function addProduct() {
         connection.query(query, [answers.productName, answers.department, answers.price, answers.quantity], function(err, res) {
             if (err) throw err;
             console.log("Product successfully added...");
+
+            process.exit();
         });
     });
 }

@@ -51,14 +51,16 @@ function askQuestions() {
         connection.query("SELECT * FROM products where item_id = ?", answers.id, function(err, res1) {
             if (err) throw err;
 
-            if (answers.quantity > res1[0].stock_quantity)
+            if (answers.quantity > res1[0].stock_quantity) {
                 console.log("Insufficient quantity!");
+                process.exit();
+            } 
             else {
                 connection.query("UPDATE products SET stock_quantity = ?, product_sales = product_sales + ? WHERE item_id = ?", [res1[0].stock_quantity - answers.quantity, res1[0].price * answers.quantity, answers.id], function(err, res2) {
                     if (err) throw err;
-                    // console.log(res2);
 
                     console.log("You spent $" + res1[0].price * answers.quantity);
+                    process.exit();
                 });
             }
         })
