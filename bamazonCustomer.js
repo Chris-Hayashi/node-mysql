@@ -54,7 +54,7 @@ function askQuestions() {
             if (answers.quantity > res1[0].stock_quantity)
                 console.log("Insufficient quantity!");
             else {
-                connection.query("UPDATE products SET stock_quantity = ? WHERE item_id = ?", [res1[0].stock_quantity - answers.quantity, answers.id], function(err, res2) {
+                connection.query("UPDATE products SET stock_quantity = ?, product_sales = product_sales + ? WHERE item_id = ?", [res1[0].stock_quantity - answers.quantity, res1[0].price * answers.quantity, answers.id], function(err, res2) {
                     if (err) throw err;
                     // console.log(res2);
 
